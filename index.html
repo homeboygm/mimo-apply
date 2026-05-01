@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenClaw Autonomous Refactor Agent | Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #0b0e14; color: #94a3b8; font-family: 'Inter', sans-serif; }
+        .card-bg { background-color: #161b26; border: 1px solid #2d3343; }
+        .accent-green { color: #00ff7f; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .log-entry { border-left: 2px solid #2d3343; padding-left: 1rem; margin-bottom: 0.5rem; animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+        .diff-remove { background-color: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+        .diff-add { background-color: rgba(16, 187, 87, 0.2); color: #86efac; }
+        .cursor { display: inline-block; width: 8px; height: 18px; background: #00ff7f; animation: blink 1s infinite; vertical-align: middle; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    </style>
+</head>
+<body class="p-6">
+
+    <!-- Navigation -->
+    <nav class="flex justify-between items-center mb-8">
+        <div class="flex items-center gap-3">
+            <div class="bg-green-500 p-2 rounded-lg text-black font-bold">OC</div>
+            <div>
+                <h1 class="text-white font-bold text-xl">OpenClaw <span class="text-green-400">Refactor Agent</span></h1>
+                <p class="text-xs opacity-50">Autonomous Code Optimization Engine v1.2.0</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/30 text-green-400 text-xs">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                Agent Active
+            </div>
+            <button onclick="startSimulation()" id="startBtn" class="bg-green-500 hover:bg-green-400 text-black font-bold py-2 px-6 rounded-lg transition text-sm">
+                Run Simulation
+            </button>
+        </div>
+    </nav>
+
+    <div class="grid grid-cols-12 gap-6">
+        
+        <!-- Left: Project Structure -->
+        <div class="col-span-3 space-y-6">
+            <div class="card-bg rounded-xl p-4">
+                <h2 class="text-white text-sm font-semibold mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
+                    Project Explorer
+                </h2>
+                <div class="text-xs space-y-2 mono">
+                    <div class="text-blue-400">📁 src/</div>
+                    <div class="pl-4 text-slate-400">📁 auth_service/</div>
+                    <div class="pl-8 text-white bg-blue-500/20 px-1 rounded">📄 user_session.py <span class="text-[10px] bg-green-500 text-black px-1 rounded ml-1">TARGET</span></div>
+                    <div class="pl-8 text-slate-400">📄 session_manager.py</div>
+                    <div class="pl-8 text-slate-400">📄 token_validator.py</div>
+                    <div class="pl-4 text-slate-400">📁 utils/</div>
+                    <div class="pl-8 text-slate-400">📄 cache_helper.py</div>
+                </div>
+            </div>
+
+            <div class="card-bg rounded-xl p-4">
+                <h2 class="text-white text-sm font-semibold mb-4">Agent Performance</h2>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-xs mb-1"><span>Time Complexity</span><span class="text-white">O(n²) → O(n)</span></div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-green-500 h-full" style="width: 85%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1"><span>Unit Test Pass Rate</span><span class="text-white">100%</span></div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-blue-500 h-full" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center: Terminal Log -->
+        <div class="col-span-6 space-y-6">
+            <div class="card-bg rounded-xl overflow-hidden flex flex-col h-[600px]">
+                <div class="bg-[#1c2230] px-4 py-2 border-b border-[#2d3343] flex justify-between items-center">
+                    <span class="text-xs font-mono text-slate-400">agent_runtime_logs.log</span>
+                    <div class="flex gap-1.5">
+                        <div class="w-3 h-3 rounded-full bg-red-500/50"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500/50"></div>
+                    </div>
+                </div>
+                <div id="terminal" class="p-4 overflow-y-auto flex-1 mono text-xs space-y-2 leading-relaxed">
+                    <div class="text-slate-500 italic">Ready to simulate. Click "Run Simulation" to start the autonomous refactoring process...</div>
+                </div>
+                <div class="p-3 bg-[#0b0e14] border-t border-[#2d3343] flex items-center gap-2 mono text-xs">
+                    <span class="text-green-400">❯</span>
+                    <span id="typing-text"></span><span class="cursor"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Code Diff View -->
+        <div class="col-span-3 space-y-6">
+            <div class="card-bg rounded-xl p-4 h-full">
+                <h2 class="text-white text-sm font-semibold mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    Proposed Changes
+                </h2>
+                <div id="diff-view" class="text-[11px] mono space-y-1 opacity-50">
+                    <div class="text-slate-500 italic text-center py-20">No changes applied yet.</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const logs = [
+            { type: 'info', text: '🚀 Initializing OpenClaw Refactor Agent...', delay: 500 },
+            { type: 'scan', text: 'Scanning workspace /src/auth_service/ ...', delay: 1000 },
+            { type: 'found', text: 'Technical Debt detected in `user_session.py`: Nested loop O(n^2) in `validate_tokens()`', delay: 1500 },
+            { type: 'plan', text: 'Generating Refactor Plan: Extract token validation to Hashmap lookup.', delay: 2000 },
+            { type: 'action', text: 'Applying edits to `user_session.py` (Line 142-155)...', delay: 2000 },
+            { type: 'verify', text: 'Running unit tests: `pytest tests/test_auth_service.py`', delay: 1500 },
+            { type: 'fail', text: '❌ Test `test_token_expiry` FAILED: KeyError: "expired_token"', delay: 1500 },
+            { type: 'reason', text: 'Analyzing failure... Root cause: Missing null-check for expired cache keys.', delay: 2000 },
+            { type: 'action', text: 'Applying corrective fix to `user_session.py` (Line 157)...', delay: 1000 },
+            { type: 'verify', text: 'Running unit tests again...', delay: 1500 },
+            { type: 'success', text: '✅ All 12 tests passed! Logic verified.', delay: 1000 },
+            { type: 'done', text: 'Creating PR #1245: "Refactor: Optimize token validation to O(n)"', delay: 1000 },
+        ];
+
+        const diffContent = `
+            <div class="diff-remove">- for token in tokens:</div>
+            <div class="diff-remove">-     if token.is_valid():</div>
+            <div class="diff-remove">-         results.append(token)</div>
+            <div class="diff-add">+ token_set = set(tokens)</div>
+            <div class="diff-add">+ results = [t for t in token_set if t.is_valid()]</div>
+            <div class="text-slate-600">...</div>
+            <div class="diff-add">+ if token is None: continue</div>
+        `;
+
+        async function startSimulation() {
+            const btn = document.getElementById('startBtn');
+            const term = document.getElementById('terminal');
+            const diff = document.getElementById('diff-view');
+            const typing = document.getElementById('typing-text');
+            
+            btn.disabled = true;
+            btn.innerText = 'Agent Running...';
+            term.innerHTML = '';
+            diff.innerHTML = '<div class="text-slate-500 italic text-center py-20">Calculating diff...</div>';
+
+            for (const log of logs) {
+                await new Promise(r => setTimeout(r, log.delay));
+                
+                let color = 'text-slate-400';
+                if (log.type === 'info') color = 'text-blue-400';
+                if (log.type === 'found') color = 'text-yellow-400';
+                if (log.type === 'action') color = 'text-purple-400';
+                if (log.type === 'fail') color = 'text-red-400';
+                if (log.type === 'success') color = 'text-green-400';
+                if (log.type === 'done') color = 'text-green-500 font-bold';
+
+                const div = document.createElement('div');
+                div.className = `log-entry ${color}`;
+                div.innerText = `[${new Date().toLocaleTimeString()}] ${log.text}`;
+                term.appendChild(div);
+                term.scrollTop = term.scrollHeight;
+
+                if (log.type === 'action') {
+                    diff.innerHTML = diffContent;
+                    diff.classList.remove('opacity-50');
+                }
+            }
+
+            typing.innerText = 'Simulation complete. PR #1245 ready for review.';
+            btn.innerText = 'Simulation Finished';
+            btn.classList.replace('bg-green-500', 'bg-slate-700');
+        }
+    </script>
+</body>
+</html>
