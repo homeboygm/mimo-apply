@@ -169,7 +169,10 @@
 
                 const div = document.createElement('div');
                 div.className = `log-entry ${color}`;
-                div.innerText = `[${new Date().toLocaleTimeString()}] ${log.text}`;
+                const now = new Date();
+                const dateStr = now.toISOString().split('T')[0];
+                const timeStr = now.toLocaleTimeString();
+                div.innerText = `[${dateStr} ${timeStr}] ${log.text}`;
                 term.appendChild(div);
                 term.scrollTop = term.scrollHeight;
 
